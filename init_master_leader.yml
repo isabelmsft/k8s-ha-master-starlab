@@ -1,0 +1,27 @@
+---
+- name: Generate Hosts File
+  hosts: leader
+  become: true
+  gather_facts: true
+  vars:
+    nodeip: var= {{ ansible_all_ipv4_addresses | ipaddr('10.64.246.0/23') | first }}
+  tasks:
+    - name: Initializing Kubernetes cluster
+      shell: kubeadm init --control-plane-endpoint "br1-master1" --upload-certs --apiserver-advertise-address {{ ansible_all_ipv4_addresses | ipaddr('10.64.246.0/23') | first }} --skip-phases=addon/kube-proxy --skip-phases=addon/coredns
+      register: output
+    - name: Storing Logs and Generated token for future purpose.
+      local_action: copy content={{ output.stdout }} dest="./token"
+    - name: Create .kube directory
+      become: yes
+      become_user: azure
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+    - name: Copy admin.conf to user's kube config
+      copy: 
+        src: /etc/kubernetes/admin.conf
+        dest: /home/azure/.kube/config
+        remote_src: yes
+        owner: azure
+

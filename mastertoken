@@ -1,0 +1,4 @@
+  kubeadm join haproxy.fareast.corp.microsoft.com:80 --token 8iy3s5.1mkgclyju3tdvuov \
+    --discovery-token-ca-cert-hash sha256:5be5e3ea2c64d0d88fad1a47b0b0daa0f3a514920f5974a6ed1780ab2f384365 \
+    --control-plane --certificate-key 864a3465064c55279e66197febecb0799df5ec3732d0fffdbddb83397d825f0f
+

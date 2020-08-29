@@ -1,0 +1,80 @@
+---
+- name: Generate Hosts File
+  hosts: masters
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Upgrade all packages
+      yum: name=* state=latest
+    - name: Install packages that allow apt to be used over HTTPS
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+    - name: Add an apt signing key for docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      environment:
+        http_proxy: http://100.127.20.21:8080
+        https_proxy: http://100.127.20.21:8080
+    - name: Add apt repository for stable version
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+    - name: Install docker and its dependencies
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+      register: result
+      failed_when: result.msg | default('ok', True) is not search('(^ok$|libselinux-python|(SELinux state changed))')
+    - name: Reboot the machine
+      reboot:
+    - name: Add an apt signing key for Kubernetes
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+      environment:
+        http_proxy: http://100.127.20.21:8080
+        https_proxy: http://100.127.20.21:8080
+    - name: Adding apt repository for Kubernetes
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes.list
+    - name: Install Kubernetes binaries
+      apt: 
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - kubelet 
+          - kubeadm 
+          - kubectl
+    - name: Restart kubelet
+      service:
+        name: kubelet
+        daemon-reload: yes
+        state: restarted
+    - name: Let iptables see bridged traffic
+      command: modprobe br_netfilter
+    - name: Disable SWAP
+      command: swapoff -a
+

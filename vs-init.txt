@@ -1,0 +1,4 @@
+Install kubeadm tools
+swapoff
+Change docker runtime to systemd
+Add haproxy DNS to /etc/hosts

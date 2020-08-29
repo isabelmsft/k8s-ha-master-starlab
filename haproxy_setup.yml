@@ -1,0 +1,29 @@
+---
+- name: Generate Hosts File
+  hosts: haproxy
+  become: true
+  gather_facts: true
+  vars:
+    my_file: /etc/haproxy/haproxy.cfg
+    my_template: templates/haproxy.j2
+  tasks:
+    - name: update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+    - name: Install haproxy
+      apt: name=haproxy state=present
+    - name: Enable init script
+      replace: dest='/etc/default/haproxy'
+             regexp='ENABLED=0'
+             replace='ENABLED=1'
+    - name: Create "{{ my_file }}"
+      template:
+        src: "{{ my_template }}"
+        dest: "{{ my_file }}"
+        owner: azure
+        group: azure
+        backup: yes
+      notify:
+        - restart haproxy
+  handlers:
+  - name: restart haproxy
+    service: name=haproxy state=restarted  

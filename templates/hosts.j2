@@ -1,0 +1,5 @@
+127.0.0.1   localhost
+
+{% for host in groups.k8s %}
+{{ hostvars[host].ansible_all_ipv4_addresses | ipaddr('10.64.246.0/23') | first }} {{ hostvars[host].ansible_hostname }}
+{% endfor %}
