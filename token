@@ -1,23 +1,20 @@
-[init] Using Kubernetes version: v1.18.6
+[init] Using Kubernetes version: v1.19.0
 [preflight] Running pre-flight checks
 [preflight] Pulling images required for setting up a Kubernetes cluster
 [preflight] This might take a minute or two, depending on the speed of your internet connection
 [preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
-[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
-[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
-[kubelet-start] Starting the kubelet
 [certs] Using certificateDir folder "/etc/kubernetes/pki"
 [certs] Generating "ca" certificate and key
 [certs] Generating "apiserver" certificate and key
-[certs] apiserver serving cert is signed for DNS names [master1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local haproxy.fareast.corp.microsoft.com] and IPs [10.96.0.1 192.168.122.32]
+[certs] apiserver serving cert is signed for DNS names [br1-haproxy br1-master1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 10.64.246.113]
 [certs] Generating "apiserver-kubelet-client" certificate and key
 [certs] Generating "front-proxy-ca" certificate and key
 [certs] Generating "front-proxy-client" certificate and key
 [certs] Generating "etcd/ca" certificate and key
 [certs] Generating "etcd/server" certificate and key
-[certs] etcd/server serving cert is signed for DNS names [master1 localhost] and IPs [192.168.122.32 127.0.0.1 ::1]
+[certs] etcd/server serving cert is signed for DNS names [br1-master1 localhost] and IPs [10.64.246.113 127.0.0.1 ::1]
 [certs] Generating "etcd/peer" certificate and key
-[certs] etcd/peer serving cert is signed for DNS names [master1 localhost] and IPs [192.168.122.32 127.0.0.1 ::1]
+[certs] etcd/peer serving cert is signed for DNS names [br1-master1 localhost] and IPs [10.64.246.113 127.0.0.1 ::1]
 [certs] Generating "etcd/healthcheck-client" certificate and key
 [certs] Generating "apiserver-etcd-client" certificate and key
 [certs] Generating "sa" key and public key
@@ -30,21 +27,24 @@
 [kubeconfig] Writing "controller-manager.conf" kubeconfig file
 [endpoint] WARNING: port specified in controlPlaneEndpoint overrides bindPort in the controlplane address
 [kubeconfig] Writing "scheduler.conf" kubeconfig file
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Starting the kubelet
 [control-plane] Using manifest folder "/etc/kubernetes/manifests"
 [control-plane] Creating static Pod manifest for "kube-apiserver"
 [control-plane] Creating static Pod manifest for "kube-controller-manager"
 [control-plane] Creating static Pod manifest for "kube-scheduler"
 [etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
 [wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
-[apiclient] All control plane components are healthy after 31.388397 seconds
+[apiclient] All control plane components are healthy after 22.006880 seconds
 [upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
-[kubelet] Creating a ConfigMap "kubelet-config-1.18" in namespace kube-system with the configuration for the kubelets in the cluster
+[kubelet] Creating a ConfigMap "kubelet-config-1.19" in namespace kube-system with the configuration for the kubelets in the cluster
 [upload-certs] Storing the certificates in Secret "kubeadm-certs" in the "kube-system" Namespace
 [upload-certs] Using certificate key:
-864a3465064c55279e66197febecb0799df5ec3732d0fffdbddb83397d825f0f
-[mark-control-plane] Marking the node master1 as control-plane by adding the label "node-role.kubernetes.io/master=''"
-[mark-control-plane] Marking the node master1 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
-[bootstrap-token] Using token: 8iy3s5.1mkgclyju3tdvuov
+6780005e52b98eec38b78e567eead0cd095e8931c91cee4244817c2f0ebb2b57
+[mark-control-plane] Marking the node br1-master1 as control-plane by adding the label "node-role.kubernetes.io/master=''"
+[mark-control-plane] Marking the node br1-master1 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+[bootstrap-token] Using token: limda7.wluss6t3rneequfu
 [bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
 [bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to get nodes
 [bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
@@ -67,9 +67,9 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 You can now join any number of the control-plane node running the following command on each as root:
 
-  kubeadm join haproxy.fareast.corp.microsoft.com:80 --token 8iy3s5.1mkgclyju3tdvuov \
-    --discovery-token-ca-cert-hash sha256:5be5e3ea2c64d0d88fad1a47b0b0daa0f3a514920f5974a6ed1780ab2f384365 \
-    --control-plane --certificate-key 864a3465064c55279e66197febecb0799df5ec3732d0fffdbddb83397d825f0f
+  kubeadm join br1-haproxy:80 --token limda7.wluss6t3rneequfu \
+    --discovery-token-ca-cert-hash sha256:f9bca8c00df33c830873e06916e673da1ff0e9a61767ab316496417cbd8b3d74 \
+    --control-plane --certificate-key 6780005e52b98eec38b78e567eead0cd095e8931c91cee4244817c2f0ebb2b57
 
 Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
 As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
@@ -77,5 +77,5 @@ As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you c
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join haproxy.fareast.corp.microsoft.com:80 --token 8iy3s5.1mkgclyju3tdvuov \
-    --discovery-token-ca-cert-hash sha256:5be5e3ea2c64d0d88fad1a47b0b0daa0f3a514920f5974a6ed1780ab2f384365 
+kubeadm join br1-haproxy:80 --token limda7.wluss6t3rneequfu \
+    --discovery-token-ca-cert-hash sha256:f9bca8c00df33c830873e06916e673da1ff0e9a61767ab316496417cbd8b3d74 

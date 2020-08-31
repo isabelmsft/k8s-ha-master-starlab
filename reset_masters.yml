@@ -1,0 +1,18 @@
+---
+- name: Remove Kubernetes from Masters
+  hosts: masters
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Remove Kubernetes
+      shell: |
+        kubeadm reset -f
+        systemctl stop kubelet
+        systemctl stop docker
+        rm -rf /var/lib/cni/
+        rm -rf /var/lib/etcd
+        rm -rf /var/lib/kubelet/*
+        rm -rf /etc/cni/
+        ip link delete cni0
+        rm -rf /var/lib/docker/*
+        rm -rf /etc/kubernetes

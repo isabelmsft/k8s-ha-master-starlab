@@ -7,7 +7,7 @@
     nodeip: var= {{ ansible_all_ipv4_addresses | ipaddr('10.64.246.0/23') | first }}
   tasks:
     - name: Initializing Kubernetes cluster
-      shell: kubeadm init --control-plane-endpoint "br1-master1" --upload-certs --apiserver-advertise-address {{ ansible_all_ipv4_addresses | ipaddr('10.64.246.0/23') | first }} --skip-phases=addon/kube-proxy --skip-phases=addon/coredns
+      shell: kubeadm init --control-plane-endpoint "br1-haproxy:80" --upload-certs --apiserver-advertise-address {{ ansible_all_ipv4_addresses | ipaddr('10.64.246.0/23') | first }} --skip-phases=addon/kube-proxy --skip-phases=addon/coredns --ignore-preflight-errors=NumCPU
       register: output
     - name: Storing Logs and Generated token for future purpose.
       local_action: copy content={{ output.stdout }} dest="./token"

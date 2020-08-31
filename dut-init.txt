@@ -1,0 +1,3 @@
+azure user
+br1-haproxy in /etc/hosts
+systemd for docker /etc/docker/daemon.json
