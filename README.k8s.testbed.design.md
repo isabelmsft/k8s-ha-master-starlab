@@ -69,10 +69,19 @@ Down: shut off, disconnected, or in the middle of reboot
 In this setup, we do not consider load balancer performance. For Kubernetes feature testing purposes, HAProxy is configured to perform vanilla round-robin load balancing on available master servers. In production, we will use BGPSpeaker anycast routing to support high availability master performance. Testing of BGPSpeaker load balancing performance is beyond the scope of this design.
 
 ## How to Setup High Availability Kubernetes Master
+
 1. Allocate 4 available IPs in 10.64.246.0/23 subnet.
-2. Spin up 4 new KVMs (3 master servers, 1 HAProxy server) using the IPs above.<Was using virt-install, will port this to an Ansible job to automate) 
-3. From Ansible agent (could be set up on Starlab server or using sonic-mgmt container), run the Ansible jobs in this repository.
+2. Spin up 4 new KVMs (3 master servers, 1 HAProxy server) using the IPs above.
+virt-install, TODO: get ansible job for this- but networking setup difficulties
+3. From `sonic-mgmt` container, run `/k8s-master-setup/setup-master.sh`
 4. Join Kubernetes-enabled SONiC DUT to cluster (kube_join function to be written)
+
+The setup above meets Kubernetes Minimum Requirements to setup a High Available cluster. The Minimum Requirements are as follows:
+- 2 GB or more of RAM per machine
+- 2 CPUs or more per machine
+- Full network connectivity between all machines in the cluster (public or private network)
+- sudo privileges on all machines
+- SSH access from one device to all nodes in the system
 
 ## How to Create Tests
 Each manifest is a yaml file
