@@ -1,5 +1,5 @@
 ---
-- name: Generate Hosts File
+- name: Initialize Master Leader
   hosts: leader
   become: true
   gather_facts: true

@@ -1,5 +1,5 @@
 ---
-- name: Generate Hosts File
+- name: Setup Kubernetes Prerequisites on 3 Master Node KVMs
   hosts: masters
   become: true
   gather_facts: true

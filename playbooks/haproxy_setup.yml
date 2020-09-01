@@ -1,5 +1,5 @@
 ---
-- name: Generate Hosts File
+- name: Configure HAProxy on HAProxy KVM
   hosts: haproxy
   become: true
   gather_facts: true
