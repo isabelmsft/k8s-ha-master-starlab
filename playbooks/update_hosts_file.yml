@@ -5,7 +5,7 @@
   gather_facts: true
   vars:
     my_file: /etc/hosts
-    my_template: templates/hosts.j2
+    my_template: ../templates/hosts.j2
   tasks:
     - name: Create "{{ my_file }}"
       template:

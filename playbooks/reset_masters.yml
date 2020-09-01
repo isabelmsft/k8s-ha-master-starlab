@@ -1,7 +1,7 @@
 ---
 - name: Remove Kubernetes from Masters
   hosts: masters
-  become: true
+  become: yes
   gather_facts: true
   tasks:
     - name: Remove Kubernetes

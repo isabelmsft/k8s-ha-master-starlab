@@ -41,27 +41,31 @@
         - containerd.io
     - name: Configure docker daemon
       copy:
-        src: 'daemon.json'
+        src: '../config/daemon.json'
         dest: '/etc/docker/daemon.json'
-    - name: Ensures docker.service.d dir exists
+    - name: Ensure docker.service.d dir exists
       file: >
         path=/etc/systemd/system/docker.service.d
         recurse=yes
         state=directory
     - name: Set docker proxies
       copy:
-        src: 'http-proxy.conf'
+        src: '../config/http-proxy.conf'
         dest: '/etc/systemd/system/docker.service.d/http-proxy.conf'
     - name: Enable docker systemd service
       service:
         name: 'docker'
         state: 'started'
         enabled: 'yes'
-    - name: Disable SELinux
-      selinux:
-        state: disabled
-      register: result
-      failed_when: result.msg | default('ok', True) is not search('(^ok$|libselinux-python|(SELinux state changed))')
+    - name: Ensure net.d directory exists for dummy CNI configuration
+      file: >
+        path=/etc/cni/net.d
+        recurse=yes
+        state=directory 
+    - name: Add dummy CNI configuration
+      copy:
+        src: '../config/10-flannel.conflist'
+        dest: '/etc/cni/net.d/10-flannel.conflist'
     - name: Reboot the machine
       reboot:
     - name: Add an apt signing key for Kubernetes

@@ -1,0 +1,4 @@
+  kubeadm join br1-haproxy:80 --token 7t6cs1.rc2bau05fa4dseh3 \
+    --discovery-token-ca-cert-hash sha256:b99d858afcbe3f3b45ef1b2d6bfb8cd813f5dce9a1afe8f4d661eadfadb1af90 \
+    --control-plane --certificate-key 3096fd30f0b7ba7a9674527af107dab62132afc82bd4b101f924d47f5c4da393
+
