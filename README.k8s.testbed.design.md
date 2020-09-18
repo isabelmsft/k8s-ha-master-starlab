@@ -78,7 +78,7 @@ We will walk through an example of setting up HA Kubernetes master set 1 on serv
 
 Replace each ansible_host value with an available IP address. 
 
-Take note of the group name `k8s_vms1_19`. At the bottom of [`ansible/k8s-ubuntu`](../k8s-ubuntu), make sure that k8s_server_19 has its `host_var_file` and two `children` properly set: 
+Take note of the group name `k8s_vms1_19`. At the bottom of [`ansible/k8s-ubuntu`](../k8s-ubuntu), make sure that `k8s_server_19` has its `host_var_file` and two `children` properly set: 
 
 ```
 k8s_server_19:
