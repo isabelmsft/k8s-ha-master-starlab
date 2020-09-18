@@ -4,7 +4,7 @@ This document describes the design to test Kubernetes features in SONiC.
 
 ## Background
 
-Each SONiC DUT is a worker node managed by a High Availability Kubernetes master in Starlab. The High Availability Kubernetes master is composed of multiple master nodes.
+Each SONiC DUT is a worker node managed by a High Availability Kubernetes master. The High Availability Kubernetes master is composed of three master node machines and one load balancer machine.
 
 By connecting each SONiC DUT to HA Kubernetes master, containers running in SONiC can be managed by the Kubernetes master. SONiC containers managed by the Kubernetes master are termed to be running in "Kubernetes mode" as opposed to the original "Local mode." 
 
@@ -40,13 +40,76 @@ spec:
 ## Topology Overview
 
 In order to connect each SONiC DUT to a High Availability Kubernetes master, we need to set up the following topology: 
-![alt text](https://github.com/isabelmsft/k8s-ha-master/blob/master/k8s-testbed-diagram.PNG)
+![alt text](https://github.com/isabelmsft/k8s-ha-master-starlab/blob/master/k8s-testbed-linux.png)
 - Each high availability master setup requires 4 new Linux KVMs running on Starlab server(s) via bridged networking.
-    - KVM Bridged networking in 10.64.246.0/23 subnet allows for connectivity from SONiC DUTs in Starlab. 
-- The 4 new KVMs are as follows: 
     - 3 Linux KVMs to serve as 3-node high availability Kubernetes master
-    - 1 Linux KVM to serve as HAProxy Load Balancer node
-- For the initial set up of the high availability master, an Ansible agent is required to run the Ansible jobs to set up and configure the HA functionality through the 4 Linux KVMs mentioned above. 
+    - 1 Linux KVM to serve as HAProxy Load Balancer node    
+- Each KVM has one management interface assigned an IP address reachable from SONiC DUT
+- HAProxy Load Balancer proxies requests to 3 backend Kubernetes master node backends. 
+
+## How to Setup High Availability Kubernetes Master
+
+1. Prepare Testbed Server and build and run `docker-sonic-mgmt` container as described here: https://github.com/Azure/sonic-mgmt/blob/master/ansible/doc/README.testbed.Setup.md
+2. Allocate 4 available IPs reachable from SONiC DUT
+3. Update [`ansible/k8s-ubuntu`](../k8s-ubuntu) to include your four newly allocated IP addresses for the HA Kubernetes master as follows:
+
+This snippet describes HA Kubernetes master set 1 running on server 19 (STR-ACS-SERV-19). 
+
+  ```
+  k8s_vms1_19:
+  hosts:
+    kvm19-1m1:
+      ansible_host: 10.250.0.2
+      master: true
+      master_leader: true
+    kvm19-1m2:
+      ansible_host: 10.250.0.3
+      master: true
+      master_member: true
+    kvm19-1m3:
+      ansible_host: 10.250.0.4
+      master_member: true
+      master: true
+    kvm19-1ha:
+      ansible_host: 10.250.0.5
+      haproxy: true 
+  ```
+  
+
+Replace ansible_host with your IP addresses. 
+
+Take note of the group name `k8s_vms1_19` At the bottom of [`ansible/k8s-ubuntu`](../k8s-ubuntu), make sure that k8s_server_19 has its `host_var_file` and two `children` properly set: 
+
+```
+k8s_server_19:
+  vars:
+    host_var_file: host_vars/STR-ACS-SERV-19.yml
+  children:
+    k8s_vm_host19:
+    k8s_vms1_19:
+    
+```
+
+
+4. Update the server network configuration for the Kubernetes VM management interfaces in [`ansible/host_vars/STR-ACS-SERV-19.yml`](../host_vars/STR-ACS-SERV-19.yml).
+    - `mgmt_gw`: ip of the gateway for the VM management interfaces
+    - `mgmt_prefixlen`: prefixlen for the management interfaces
+    
+5. From `docker-sonic-mgmt` container, run `./testbed-cli.sh -m k8s-ubuntu [additional OPTIONS] destroy-master 'k8s-server-name' ~/.password"`
+   - k8s_server_name corresponds to the group name used to describe the testbed server in the [`ansible/k8s-ubuntu`](../k8s-ubuntu) inventory file. 
+   - Please note: password.txt is the ansible vault password file name/path. Ansible allows users to use ansible-vault to encrypt password files. By default, this shell script requires a password file. If you are not using ansible-vault, just create an empty file and pass the file name to the command line. The file name and location is created and maintained by the user.
+   
+OPTIONAL: We offer the functionality to run multiple master sets on one server. Each master set is one HA Kubernetes master composed of 4 Linux KVMs. 
+Should an additional HA master be necessary on an occupied server, add the option `-s {msetnumber}`, where `msetnumber` would be 2 if this is the 2nd master set running on `{k8s-server-name}` 
+
+5. Join Kubernetes-enabled SONiC DUT to cluster (kube_join function to be written)
+
+The setup above meets Kubernetes Minimum Requirements to setup a High Available cluster. The Minimum Requirements are as follows:
+- 2 GB or more of RAM per machine
+- 2 CPUs or more per machine
+- Full network connectivity between all machines in the cluster (public or private network)
+- sudo privileges on all machines
+- SSH access from one device to all nodes in the system
 
 ## Testing Scope
 
@@ -68,20 +131,7 @@ Down: shut off, disconnected, or in the middle of reboot
 
 In this setup, we do not consider load balancer performance. For Kubernetes feature testing purposes, HAProxy is configured to perform vanilla round-robin load balancing on available master servers. In production, we will use BGPSpeaker anycast routing to support high availability master performance. Testing of BGPSpeaker load balancing performance is beyond the scope of this design.
 
-## How to Setup High Availability Kubernetes Master
 
-1. Allocate 4 available IPs in 10.64.246.0/23 subnet.
-2. Spin up 4 new KVMs (3 master servers, 1 HAProxy server) using the IPs above.
-virt-install, TODO: get ansible job for this- but networking setup difficulties
-3. From `sonic-mgmt` container, run `/k8s-master-setup/setup-master.sh`
-4. Join Kubernetes-enabled SONiC DUT to cluster (kube_join function to be written)
-
-The setup above meets Kubernetes Minimum Requirements to setup a High Available cluster. The Minimum Requirements are as follows:
-- 2 GB or more of RAM per machine
-- 2 CPUs or more per machine
-- Full network connectivity between all machines in the cluster (public or private network)
-- sudo privileges on all machines
-- SSH access from one device to all nodes in the system
 
 ## How to Create Tests
 Each manifest is a yaml file
