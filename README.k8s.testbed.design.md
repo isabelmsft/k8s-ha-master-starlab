@@ -50,10 +50,10 @@ In order to connect each SONiC DUT to a High Availability Kubernetes master, we 
 ## How to Setup High Availability Kubernetes Master
 
 1. Prepare Testbed Server and build and run `docker-sonic-mgmt` container as described [here](https://github.com/Azure/sonic-mgmt/blob/master/ansible/doc/README.testbed.Setup.md) 
-2. Allocate 4 available IPs reachable from SONiC DUT
-3. Update [`ansible/k8s-ubuntu`](../k8s-ubuntu) to include your 4 newly allocated IP addresses for the HA Kubernetes master as follows:
+2. Allocate 4 available IPs reachable from SONiC DUT.
+3. Update [`ansible/k8s-ubuntu`](../k8s-ubuntu) to include your 4 newly allocated IP addresses for the HA Kubernetes master.
 
-We will walk through an example of setting up HA Kubernetes master set 1 on server 19 (STR-ACS-SERV-19). The following snippet is the relevant portion from [`ansible/k8s-ubuntu`](../k8s-ubuntu)
+We will walk through an example of setting up HA Kubernetes master set 1 on server 19 (STR-ACS-SERV-19). The following snippet is the relevant portion from [`ansible/k8s-ubuntu`](../k8s-ubuntu).
 
   ```
   k8s_vms1_19:
@@ -105,7 +105,7 @@ OPTIONAL: We offer the functionality to run multiple master sets on one server.
   - Should an additional HA master be necessary on an occupied server, add the option `-s {msetnumber}`, where `msetnumber` would be 2 if this is the 2nd master set running on `{k8s-server-name}`. Make sure that [`ansible/k8s-ubuntu`](../k8s-ubuntu) is updated accordingly. `msetnumber` is 1 by default. 
 
 
-6. Join Kubernetes-enabled SONiC DUT to cluster (kube_join function to be written)
+6. Join Kubernetes-enabled SONiC DUT to cluster (kube_join function to be written).
 
 The setup above meets Kubernetes Minimum Requirements to setup a High Available cluster. The Minimum Requirements are as follows:
 - 2 GB or more of RAM per machine
@@ -136,8 +136,7 @@ During each of the following states:
 Down: shut off, disconnected, or in the middle of reboot
 
 
-In this setup, we do not consider load balancer performance. For Kubernetes feature testing purposes, HAProxy is configured to perform vanilla round-robin load balancing on available master servers. In production, we will use BGPSpeaker anycast routing to support high availability master performance. Testing of BGPSpeaker load balancing performance is beyond the scope of this design.
-
+In this setup, we do not consider load balancer performance. For Kubernetes feature testing purposes, HAProxy is configured to perform vanilla round-robin load balancing on available master servers.
 
 
 ## How to Create Tests
