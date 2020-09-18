@@ -92,8 +92,8 @@ k8s_server_19:
 4. Update the server network configuration for the Kubernetes VM management interfaces in [`ansible/host_vars/STR-ACS-SERV-19.yml`](../host_vars/STR-ACS-SERV-19.yml).
     - `mgmt_gw`: ip of the gateway for the VM management interfaces
     - `mgmt_prefixlen`: prefixlen for the management interfaces
-    
-5. From `docker-sonic-mgmt` container, run `./testbed-cli.sh -m k8s-ubuntu [additional OPTIONS] create-master 'k8s-server-name' ~/.password.txt"`
+5. Update the testbed server credentials in [`ansible/group_vars/k8s_vm_host/creds.yml`](../group_vars/k8s_vm_host/creds.yml).   
+6. From `docker-sonic-mgmt` container, run `./testbed-cli.sh -m k8s-ubuntu [additional OPTIONS] create-master 'k8s-server-name' ~/.password.txt"`
    - k8s_server_name corresponds to the group name used to describe the testbed server in the [`ansible/k8s-ubuntu`](../k8s-ubuntu) inventory file. 
    - Please note: password.txt is the ansible vault password file name/path. Ansible allows users to use ansible-vault to encrypt password files. By default, this shell script requires a password file. If you are not using ansible-vault, just create an empty file and pass the file name to the command line. The file name and location are created and maintained by the user.
    
@@ -105,7 +105,7 @@ OPTIONAL: We offer the functionality to run multiple master sets on one server.
   - Should an additional HA master be necessary on an occupied server, add the option `-s {msetnumber}`, where `msetnumber` would be 2 if this is the 2nd master set running on `{k8s-server-name}`. Make sure that [`ansible/k8s-ubuntu`](../k8s-ubuntu) is updated accordingly. `msetnumber` is 1 by default. 
 
 
-6. Join Kubernetes-enabled SONiC DUT to cluster (kube_join function to be written).
+7. Join Kubernetes-enabled SONiC DUT to cluster (kube_join function to be written).
 
 The setup above meets Kubernetes Minimum Requirements to setup a High Available cluster. The Minimum Requirements are as follows:
 - 2 GB or more of RAM per machine
