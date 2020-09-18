@@ -45,7 +45,7 @@ In order to connect each SONiC DUT to a High Availability Kubernetes master, we 
     - 3 Linux KVMs to serve as 3-node high availability Kubernetes master
     - 1 Linux KVM to serve as HAProxy Load Balancer node    
 - Each KVM has one management interface assigned an IP address reachable from SONiC DUT
-- HAProxy Load Balancer proxies requests to 3 backend Kubernetes master node backends. 
+- HAProxy Load Balancer proxies requests to 3 backend Kubernetes master nodes. 
 
 ## How to Setup High Availability Kubernetes Master
 
